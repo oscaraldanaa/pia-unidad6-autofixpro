@@ -1,0 +1,3731 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AutoFix Pro API",
+    "description": "\nAPI del **Sistema de Gestión y Trazabilidad Operativa de AutoFix Pro** (PIA — Componentes de Lógica de Negocio, FIME-UANL).\n\n### Cómo probar desde Swagger\n1. Pulsa **Authorize** e ingresa un rol (`X-Rol`): `cliente`, `asesor_servicio`, `tecnico`, `compras` o `caja` (RN-12).\n2. Sigue el ciclo: ingreso → diagnóstico → cotización → respuesta del cliente → asignación → … → cobro.\n\n### Ciclo de vida de la orden\n`Recibido → Diagnosticado → Cotizado → Autorizado → En reparación ⇄ En espera de refacción → Listo para entrega → Cerrado`\n(o `Cancelado`). Las transiciones inválidas responden **409**.\n\n### Códigos de error\n401/403 rol · 404 no existe · 409 regla de negocio o transición inválida · 422 dato inválido.\n",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Salud"
+        ],
+        "summary": "Estado del servicio y de la base de datos",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clientes": {
+      "post": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Registrar cliente",
+        "description": "Requiere un medio digital de contacto: teléfono o correo (RN-10).",
+        "operationId": "registrar_cliente_api_v1_clientes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClienteIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/clientes/{cliente_id}/estado": {
+      "patch": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Dar de alta o baja a un cliente",
+        "description": "Un cliente inactivo no puede abrir órdenes ni recibir asignación de trabajos (precondición `cliente_activo`).",
+        "operationId": "estado_cliente_api_v1_clientes__cliente_id__estado_patch",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cliente_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cliente Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoClienteIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogo": {
+      "get": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Consultar catálogo de recursos",
+        "operationId": "consultar_catalogo_api_v1_catalogo_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ItemCatalogoDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Consultar Catalogo Api V1 Catalogo Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Registrar recurso del catálogo",
+        "operationId": "registrar_recurso_api_v1_catalogo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemCatalogoIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/vehiculos": {
+      "post": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Registrar vehículo",
+        "operationId": "registrar_vehiculo_api_v1_vehiculos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VehiculoIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/vehiculos/{vehiculo_id}/historial": {
+      "get": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Historial de órdenes del vehículo",
+        "operationId": "historial_vehiculo_api_v1_vehiculos__vehiculo_id__historial_get",
+        "parameters": [
+          {
+            "name": "vehiculo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Vehiculo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrdenResumenDTO"
+                  },
+                  "title": "Response Historial Vehiculo Api V1 Vehiculos  Vehiculo Id  Historial Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tecnicos": {
+      "post": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Registrar técnico",
+        "operationId": "registrar_tecnico_api_v1_tecnicos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TecnicoIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/flotillas": {
+      "post": {
+        "tags": [
+          "Catálogos"
+        ],
+        "summary": "Registrar cuenta de flotilla (Panel B2B)",
+        "description": "RN-09 / RN-14: asocia un autorizador corporativo y condiciones comerciales.",
+        "operationId": "registrar_flotilla_api_v1_flotillas_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlotillaIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ordenes": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Registrar ingreso del vehículo y abrir la OT",
+        "description": "**US-01 · RF-01 · RN-01.** Crea la orden en estado *Recibido*. Si el vehículo pertenece a una flotilla se asocia la cuenta B2B y su autorizador corporativo (**RN-09, RN-14**).",
+        "operationId": "registrar_ingreso_api_v1_ordenes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngresoIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ordenes/{orden_id}": {
+      "get": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Consultar estado de la orden",
+        "description": "**US-12 · RF-12 · RN-02.** Consulta abierta (portal del cliente / administración).",
+        "operationId": "consultar_api_v1_ordenes__orden_id__get",
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/evaluacion": {
+      "get": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Evaluar reglas compuestas de la operación",
+        "description": "Specifications con AND/OR/NOT: `puede_procesarse` (cliente activo AND con detalle AND autorizada) y `beneficio_referencia` (cliente preferente AND total ≥ 1500 AND NOT promoción). Devuelve además el valor de cada criterio.",
+        "operationId": "evaluacion_api_v1_ordenes__orden_id__evaluacion_get",
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluacionOperacionDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/diagnostico": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Registrar diagnóstico",
+        "description": "**US-02 · RF-02.** Recibido → Diagnosticado.",
+        "operationId": "diagnostico_api_v1_ordenes__orden_id__diagnostico_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiagnosticoIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/cotizacion": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Generar cotización",
+        "description": "**US-03 · RF-03 · RN-05.** Diagnosticado → Cotizado.",
+        "operationId": "cotizar_api_v1_ordenes__orden_id__cotizacion_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CotizacionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/cotizacion/respuesta": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Autorizar o rechazar la cotización (total o parcial)",
+        "description": "**US-04 · RF-04 · RF-18 · RN-05 · RN-11.** Cada concepto se decide por separado. Rechazo total cancela la orden. Se registra sello de tiempo e IP/token.",
+        "operationId": "responder_cotizacion_api_v1_ordenes__orden_id__cotizacion_respuesta_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RespuestaIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/trabajos": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Asignar trabajos autorizados al técnico",
+        "description": "**US-05 · RF-05 · RN-13.** Autorizado → En reparación. Exige técnico disponible.",
+        "operationId": "asignar_api_v1_ordenes__orden_id__trabajos_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignacionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/refacciones-faltantes": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Reportar refacción sin existencia",
+        "description": "**US-06 · RF-06 · RN-07.** Genera la solicitud a Compras. En reparación → En espera de refacción.",
+        "operationId": "refaccion_faltante_api_v1_ordenes__orden_id__refacciones_faltantes_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefaccionFaltanteIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/refacciones-faltantes/{solicitud_id}/reposicion": {
+      "patch": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Actualizar tiempo de reposición (notifica al cliente)",
+        "description": "**US-07 · RF-07 · RN-03.** Emite la notificación de retraso con motivo y nueva fecha.",
+        "operationId": "reposicion_api_v1_ordenes__orden_id__refacciones_faltantes__solicitud_id__reposicion_patch",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "solicitud_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Solicitud Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReposicionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/refacciones-faltantes/{solicitud_id}/recepcion": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Registrar recepción de la refacción",
+        "description": "Si no quedan solicitudes pendientes: En espera de refacción → En reparación.",
+        "operationId": "recepcion_api_v1_ordenes__orden_id__refacciones_faltantes__solicitud_id__recepcion_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "solicitud_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Solicitud Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/fallas-adicionales": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Registrar falla adicional",
+        "description": "**US-08 · RF-08 · RN-04.** Crea la solicitud de ampliación.",
+        "operationId": "falla_api_v1_ordenes__orden_id__fallas_adicionales_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FallaIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/fallas-adicionales/{solicitud_id}/cotizacion": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Enviar cotización complementaria",
+        "description": "**US-09 · RF-09 · RN-04/RN-05.**",
+        "operationId": "cotizacion_complementaria_api_v1_ordenes__orden_id__fallas_adicionales__solicitud_id__cotizacion_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "solicitud_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Solicitud Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CotizacionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/fallas-adicionales/{solicitud_id}/respuesta": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Autorizar o rechazar la ampliación",
+        "description": "**US-10 · RF-10 · RN-13.** Solo lo autorizado habilita trabajo al técnico.",
+        "operationId": "respuesta_ampliacion_api_v1_ordenes__orden_id__fallas_adicionales__solicitud_id__respuesta_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "solicitud_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Solicitud Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RespuestaIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/fecha-entrega": {
+      "put": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Programar o modificar la fecha estimada de entrega",
+        "description": "**US-11 · RF-11 · RN-06.** La primera vez programa; después exige justificación, conserva el historial y notifica al cliente.",
+        "operationId": "fecha_entrega_api_v1_ordenes__orden_id__fecha_entrega_put",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FechaEntregaIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/trabajos/{trabajo_id}/finalizacion": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Finalizar trabajo (pasa a revisión de calidad)",
+        "description": "**US-13 · RF-13.**",
+        "operationId": "finalizar_api_v1_ordenes__orden_id__trabajos__trabajo_id__finalizacion_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "trabajo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trabajo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/trabajos/{trabajo_id}/revision": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Aprobar revisión de calidad",
+        "operationId": "revision_api_v1_ordenes__orden_id__trabajos__trabajo_id__revision_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          },
+          {
+            "name": "trabajo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trabajo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/listo-para-entrega": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Marcar la orden como lista para entrega",
+        "description": "**US-14 · RF-14.** Guarda de la State Machine: `OrdenListaParaEntregaSpec`.",
+        "operationId": "listo_api_v1_ordenes__orden_id__listo_para_entrega_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/cobro": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Registrar cobro y cerrar la orden",
+        "description": "**US-15 · RF-15.** El monto debe igualar el total autorizado. Listo para entrega → Cerrado.",
+        "operationId": "cobro_api_v1_ordenes__orden_id__cobro_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ordenes/{orden_id}/cancelacion": {
+      "post": {
+        "tags": [
+          "Órdenes de servicio"
+        ],
+        "summary": "Cancelar la orden",
+        "description": "Solo antes de iniciar la reparación.",
+        "operationId": "cancelar_api_v1_ordenes__orden_id__cancelacion_post",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orden_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Orden Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelacionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrdenDetalleDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta X-Rol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol sin permiso (RN-12)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden o entidad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Regla de negocio o transición de estado inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AsignacionIn": {
+        "properties": {
+          "tecnico_id": {
+            "type": "string",
+            "title": "Tecnico Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tecnico_id"
+        ],
+        "title": "AsignacionIn"
+      },
+      "CambioFechaDTO": {
+        "properties": {
+          "anterior": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Anterior"
+          },
+          "nueva": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Nueva"
+          },
+          "justificacion": {
+            "type": "string",
+            "title": "Justificacion"
+          },
+          "registrado_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Registrado En"
+          }
+        },
+        "type": "object",
+        "required": [
+          "anterior",
+          "nueva",
+          "justificacion",
+          "registrado_en"
+        ],
+        "title": "CambioFechaDTO"
+      },
+      "CancelacionIn": {
+        "properties": {
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "motivo"
+        ],
+        "title": "CancelacionIn"
+      },
+      "ClienteIn": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 1,
+            "title": "Nombre"
+          },
+          "telefono": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefono",
+            "description": "Para SMS (RN-10)"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "cuenta_flotilla_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuenta Flotilla Id"
+          },
+          "activo": {
+            "type": "boolean",
+            "title": "Activo",
+            "default": true
+          },
+          "es_preferente": {
+            "type": "boolean",
+            "title": "Es Preferente",
+            "description": "Cliente preferente (VIP); extensión para beneficio_referencia",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre"
+        ],
+        "title": "ClienteIn",
+        "example": {
+          "email": "ana@example.com",
+          "nombre": "Ana López",
+          "telefono": "8112345678"
+        }
+      },
+      "CobroIn": {
+        "properties": {
+          "monto": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Monto",
+            "description": "Debe igualar el total autorizado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "monto"
+        ],
+        "title": "CobroIn"
+      },
+      "ConceptoDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "cantidad": {
+            "type": "string",
+            "title": "Cantidad"
+          },
+          "precio_unitario": {
+            "type": "string",
+            "title": "Precio Unitario"
+          },
+          "importe": {
+            "type": "string",
+            "title": "Importe"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "descripcion",
+          "cantidad",
+          "precio_unitario",
+          "importe",
+          "estado"
+        ],
+        "title": "ConceptoDTO"
+      },
+      "ConceptoIn": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "mano_de_obra",
+              "refaccion"
+            ],
+            "title": "Tipo",
+            "default": "mano_de_obra"
+          },
+          "descripcion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descripcion"
+          },
+          "precio_unitario": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precio Unitario"
+          },
+          "cantidad": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Cantidad",
+            "default": "1"
+          },
+          "recurso_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recurso Id"
+          }
+        },
+        "type": "object",
+        "title": "ConceptoIn",
+        "description": "Concepto libre (``descripcion`` + ``precio_unitario``) o de catálogo (``recurso_id``).\n\nCon ``recurso_id`` se usa el precio oficial y se valida que el recurso esté habilitado y que la\ncantidad no exceda su capacidad (409 CAT-01 / CAT-02; 404 si no existe)."
+      },
+      "CotizacionDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tipo": {
+            "type": "string",
+            "title": "Tipo"
+          },
+          "resultado": {
+            "type": "string",
+            "title": "Resultado"
+          },
+          "subtotal": {
+            "type": "string",
+            "title": "Subtotal"
+          },
+          "descuento": {
+            "type": "string",
+            "title": "Descuento"
+          },
+          "impuestos": {
+            "type": "string",
+            "title": "Impuestos"
+          },
+          "total": {
+            "type": "string",
+            "title": "Total"
+          },
+          "total_autorizado": {
+            "type": "string",
+            "title": "Total Autorizado"
+          },
+          "conceptos": {
+            "items": {
+              "$ref": "#/components/schemas/ConceptoDTO"
+            },
+            "type": "array",
+            "title": "Conceptos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tipo",
+          "resultado",
+          "subtotal",
+          "descuento",
+          "impuestos",
+          "total",
+          "total_autorizado",
+          "conceptos"
+        ],
+        "title": "CotizacionDTO"
+      },
+      "CotizacionIn": {
+        "properties": {
+          "conceptos": {
+            "items": {
+              "$ref": "#/components/schemas/ConceptoIn"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Conceptos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conceptos"
+        ],
+        "title": "CotizacionIn",
+        "example": {
+          "conceptos": [
+            {
+              "descripcion": "Cambio de balatas",
+              "precio_unitario": "500.00",
+              "tipo": "mano_de_obra"
+            },
+            {
+              "cantidad": "1",
+              "descripcion": "Balatas delanteras",
+              "precio_unitario": "800.50",
+              "tipo": "refaccion"
+            }
+          ]
+        }
+      },
+      "DiagnosticoIn": {
+        "properties": {
+          "tecnico_id": {
+            "type": "string",
+            "title": "Tecnico Id"
+          },
+          "hallazgos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Hallazgos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tecnico_id",
+          "hallazgos"
+        ],
+        "title": "DiagnosticoIn"
+      },
+      "ErrorOut": {
+        "properties": {
+          "detalle": {
+            "type": "string",
+            "title": "Detalle"
+          },
+          "regla": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regla"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detalle"
+        ],
+        "title": "ErrorOut"
+      },
+      "EstadoClienteIn": {
+        "properties": {
+          "activo": {
+            "type": "boolean",
+            "title": "Activo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "activo"
+        ],
+        "title": "EstadoClienteIn"
+      },
+      "EvaluacionOperacionDTO": {
+        "properties": {
+          "orden_id": {
+            "type": "string",
+            "title": "Orden Id"
+          },
+          "cliente_id": {
+            "type": "string",
+            "title": "Cliente Id"
+          },
+          "total_referencia": {
+            "type": "string",
+            "title": "Total Referencia"
+          },
+          "puede_procesarse": {
+            "type": "boolean",
+            "title": "Puede Procesarse"
+          },
+          "beneficio_referencia": {
+            "type": "boolean",
+            "title": "Beneficio Referencia"
+          },
+          "criterios": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Criterios"
+          }
+        },
+        "type": "object",
+        "required": [
+          "orden_id",
+          "cliente_id",
+          "total_referencia",
+          "puede_procesarse",
+          "beneficio_referencia",
+          "criterios"
+        ],
+        "title": "EvaluacionOperacionDTO"
+      },
+      "FallaIn": {
+        "properties": {
+          "tecnico_id": {
+            "type": "string",
+            "title": "Tecnico Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Descripcion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tecnico_id",
+          "descripcion"
+        ],
+        "title": "FallaIn"
+      },
+      "FechaEntregaIn": {
+        "properties": {
+          "fecha_estimada": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fecha Estimada",
+            "description": "Con zona horaria, p. ej. 2026-11-20T18:00:00Z"
+          },
+          "justificacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Justificacion",
+            "description": "Obligatoria si ya existía una fecha (RN-06)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fecha_estimada"
+        ],
+        "title": "FechaEntregaIn"
+      },
+      "FlotillaIn": {
+        "properties": {
+          "razon_social": {
+            "type": "string",
+            "title": "Razon Social"
+          },
+          "autorizador_corporativo_id": {
+            "type": "string",
+            "title": "Autorizador Corporativo Id",
+            "description": "ID de un cliente ya registrado"
+          },
+          "descuento_pct": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Descuento Pct",
+            "default": "0"
+          },
+          "prioridad": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Prioridad",
+            "default": 0
+          },
+          "dias_credito": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Dias Credito",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "razon_social",
+          "autorizador_corporativo_id"
+        ],
+        "title": "FlotillaIn"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IdOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Identificador (texto) de la entidad creada, p. ej. CLI-9F2C41AB07D3E856"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "IdOut"
+      },
+      "IngresoIn": {
+        "properties": {
+          "cliente_id": {
+            "type": "string",
+            "title": "Cliente Id"
+          },
+          "vehiculo_id": {
+            "type": "string",
+            "title": "Vehiculo Id"
+          },
+          "kilometraje": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Kilometraje"
+          },
+          "combustible": {
+            "type": "string",
+            "enum": [
+              "vacio",
+              "1/4",
+              "1/2",
+              "3/4",
+              "lleno"
+            ],
+            "title": "Combustible"
+          },
+          "motivo_ingreso": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivo Ingreso"
+          },
+          "danos_visibles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Danos Visibles"
+          },
+          "promocion_activa": {
+            "type": "boolean",
+            "title": "Promocion Activa",
+            "description": "Promoción vigente en la operación (extensión; usada por beneficio_referencia)",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "cliente_id",
+          "vehiculo_id",
+          "kilometraje",
+          "combustible",
+          "motivo_ingreso"
+        ],
+        "title": "IngresoIn",
+        "example": {
+          "cliente_id": "<id>",
+          "combustible": "1/2",
+          "danos_visibles": [
+            "Rayón en puerta derecha"
+          ],
+          "kilometraje": 50100,
+          "motivo_ingreso": "Ruido al frenar",
+          "vehiculo_id": "<id>"
+        }
+      },
+      "ItemCatalogoDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "precio_mxn": {
+            "type": "string",
+            "title": "Precio Mxn"
+          },
+          "capacidad": {
+            "type": "integer",
+            "title": "Capacidad"
+          },
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "descripcion",
+          "precio_mxn",
+          "capacidad",
+          "habilitado"
+        ],
+        "title": "ItemCatalogoDTO"
+      },
+      "ItemCatalogoIn": {
+        "properties": {
+          "descripcion": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Descripcion"
+          },
+          "precio_mxn": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Precio Mxn"
+          },
+          "capacidad": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Capacidad",
+            "description": "Capacidad de servicio o existencia en inventario"
+          },
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "descripcion",
+          "precio_mxn",
+          "capacidad"
+        ],
+        "title": "ItemCatalogoIn",
+        "example": {
+          "capacidad": 16,
+          "descripcion": "Frenos 02",
+          "habilitado": true,
+          "precio_mxn": "430.00"
+        }
+      },
+      "OrdenDetalleDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "cliente_id": {
+            "type": "string",
+            "title": "Cliente Id"
+          },
+          "vehiculo_id": {
+            "type": "string",
+            "title": "Vehiculo Id"
+          },
+          "autorizador_id": {
+            "type": "string",
+            "title": "Autorizador Id"
+          },
+          "es_flotilla": {
+            "type": "boolean",
+            "title": "Es Flotilla"
+          },
+          "promocion_activa": {
+            "type": "boolean",
+            "title": "Promocion Activa"
+          },
+          "creada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creada En"
+          },
+          "kilometraje": {
+            "type": "integer",
+            "title": "Kilometraje"
+          },
+          "combustible": {
+            "type": "string",
+            "title": "Combustible"
+          },
+          "danos_visibles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Danos Visibles"
+          },
+          "motivo_ingreso": {
+            "type": "string",
+            "title": "Motivo Ingreso"
+          },
+          "hallazgos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Hallazgos"
+          },
+          "fecha_entrega": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fecha Entrega"
+          },
+          "cotizacion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CotizacionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "trabajos": {
+            "items": {
+              "$ref": "#/components/schemas/TrabajoDTO"
+            },
+            "type": "array",
+            "title": "Trabajos"
+          },
+          "solicitudes_refaccion": {
+            "items": {
+              "$ref": "#/components/schemas/SolicitudRefaccionDTO"
+            },
+            "type": "array",
+            "title": "Solicitudes Refaccion"
+          },
+          "solicitudes_ampliacion": {
+            "items": {
+              "$ref": "#/components/schemas/SolicitudAmpliacionDTO"
+            },
+            "type": "array",
+            "title": "Solicitudes Ampliacion"
+          },
+          "historial_fechas": {
+            "items": {
+              "$ref": "#/components/schemas/CambioFechaDTO"
+            },
+            "type": "array",
+            "title": "Historial Fechas"
+          },
+          "total_autorizado": {
+            "type": "string",
+            "title": "Total Autorizado"
+          },
+          "monto_cobrado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monto Cobrado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "estado",
+          "cliente_id",
+          "vehiculo_id",
+          "autorizador_id",
+          "es_flotilla",
+          "promocion_activa",
+          "creada_en",
+          "kilometraje",
+          "combustible",
+          "danos_visibles",
+          "motivo_ingreso",
+          "hallazgos",
+          "fecha_entrega",
+          "cotizacion",
+          "trabajos",
+          "solicitudes_refaccion",
+          "solicitudes_ampliacion",
+          "historial_fechas",
+          "total_autorizado",
+          "monto_cobrado"
+        ],
+        "title": "OrdenDetalleDTO"
+      },
+      "OrdenResumenDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "creada_en": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creada En"
+          },
+          "motivo_ingreso": {
+            "type": "string",
+            "title": "Motivo Ingreso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "estado",
+          "creada_en",
+          "motivo_ingreso"
+        ],
+        "title": "OrdenResumenDTO"
+      },
+      "RefaccionFaltanteIn": {
+        "properties": {
+          "concepto_id": {
+            "type": "string",
+            "title": "Concepto Id"
+          },
+          "reposicion_estimada": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reposicion Estimada"
+          }
+        },
+        "type": "object",
+        "required": [
+          "concepto_id"
+        ],
+        "title": "RefaccionFaltanteIn"
+      },
+      "ReposicionIn": {
+        "properties": {
+          "nueva_fecha": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Nueva Fecha"
+          },
+          "motivo": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Motivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nueva_fecha",
+          "motivo"
+        ],
+        "title": "ReposicionIn"
+      },
+      "RespuestaIn": {
+        "properties": {
+          "decisiones": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Decisiones",
+            "description": "concepto_id -> true (autoriza) / false (rechaza)"
+          },
+          "canal": {
+            "type": "string",
+            "enum": [
+              "sms",
+              "email",
+              "web"
+            ],
+            "title": "Canal",
+            "default": "web"
+          },
+          "token_verificacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Verificacion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decisiones"
+        ],
+        "title": "RespuestaIn",
+        "description": "Decisión del cliente por concepto (RN-05). La IP y el sello de tiempo los captura el servidor (RN-11).",
+        "example": {
+          "canal": "web",
+          "decisiones": {
+            "<concepto_id_1>": true,
+            "<concepto_id_2>": false
+          }
+        }
+      },
+      "SolicitudAmpliacionDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tecnico_id": {
+            "type": "string",
+            "title": "Tecnico Id"
+          },
+          "descripcion_falla": {
+            "type": "string",
+            "title": "Descripcion Falla"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "cotizacion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CotizacionDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tecnico_id",
+          "descripcion_falla",
+          "estado",
+          "cotizacion"
+        ],
+        "title": "SolicitudAmpliacionDTO"
+      },
+      "SolicitudRefaccionDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "concepto_id": {
+            "type": "string",
+            "title": "Concepto Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          },
+          "reposicion_estimada": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reposicion Estimada"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "concepto_id",
+          "descripcion",
+          "estado",
+          "reposicion_estimada"
+        ],
+        "title": "SolicitudRefaccionDTO"
+      },
+      "TecnicoIn": {
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "title": "Nombre"
+          },
+          "especialidad": {
+            "type": "string",
+            "title": "Especialidad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nombre",
+          "especialidad"
+        ],
+        "title": "TecnicoIn",
+        "example": {
+          "especialidad": "Frenos",
+          "nombre": "Luis Pérez"
+        }
+      },
+      "TrabajoDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "concepto_id": {
+            "type": "string",
+            "title": "Concepto Id"
+          },
+          "descripcion": {
+            "type": "string",
+            "title": "Descripcion"
+          },
+          "tecnico_id": {
+            "type": "string",
+            "title": "Tecnico Id"
+          },
+          "estado": {
+            "type": "string",
+            "title": "Estado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "concepto_id",
+          "descripcion",
+          "tecnico_id",
+          "estado"
+        ],
+        "title": "TrabajoDTO"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VehiculoIn": {
+        "properties": {
+          "placas": {
+            "type": "string",
+            "title": "Placas"
+          },
+          "marca": {
+            "type": "string",
+            "title": "Marca"
+          },
+          "modelo": {
+            "type": "string",
+            "title": "Modelo"
+          },
+          "kilometraje": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Kilometraje"
+          },
+          "vin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vin",
+            "description": "17 caracteres, sin I, O, Q"
+          },
+          "cuenta_flotilla_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cuenta Flotilla Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "placas",
+          "marca",
+          "modelo",
+          "kilometraje"
+        ],
+        "title": "VehiculoIn",
+        "example": {
+          "kilometraje": 50000,
+          "marca": "Nissan",
+          "modelo": "Versa",
+          "placas": "ABC-123"
+        }
+      }
+    },
+    "securitySchemes": {
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "description": "Rol del usuario: cliente | asesor_servicio | tecnico | compras | caja",
+        "in": "header",
+        "name": "X-Rol"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Órdenes de servicio",
+      "description": "Ciclo de vida de la OT (US-01 a US-15)."
+    },
+    {
+      "name": "Catálogos",
+      "description": "Clientes, vehículos, técnicos y cuentas de flotilla."
+    },
+    {
+      "name": "Salud",
+      "description": "Verificación del servicio."
+    }
+  ]
+}

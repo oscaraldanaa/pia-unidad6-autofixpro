@@ -1,0 +1,54 @@
+# AutoFix Pro — entorno reproducible: base de datos + aplicación + contenedor de pruebas.
+#   docker compose up --build -d            -> db + app   (http://localhost:8000/docs)
+#   docker compose --profile test run --rm tests   -> ejecuta la suite completa contra MySQL
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:?Defina MYSQL_DATABASE en .env}
+      MYSQL_USER: ${MYSQL_USER:?Defina MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD en .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD en .env}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro   # crea la BD <nombre>_test para las pruebas
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      TASA_IVA: ${TASA_IVA:-16}
+      CANAL_NOTIFICACIONES: ${CANAL_NOTIFICACIONES:-log}
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  tests:
+    build:
+      context: .
+      target: test
+    profiles: ["test"]           # solo se ejecuta con --profile test
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: test
+      TEST_DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${MYSQL_DATABASE}_test
+    command: ["pytest"]
+
+volumes:
+  mysql_data:

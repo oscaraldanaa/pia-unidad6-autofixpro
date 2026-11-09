@@ -1,0 +1,142 @@
+﻿tipo,id_paquete,id_sistema,detalle
+cliente,AUT-C001,CLI-A289D3A95E399E05,Propietario 01 · activo=1 · preferente=0
+cliente,AUT-C002,CLI-B444515B88A05A0B,Propietario 02 · activo=1 · preferente=0
+cliente,AUT-C003,CLI-F3EBA7979E5C4980,Propietario 03 · activo=1 · preferente=0
+cliente,AUT-C004,CLI-F5CC46EF177DF5A8,Propietario 04 · activo=1 · preferente=0
+cliente,AUT-C005,CLI-13A6172AAE2A98E0,Propietario 05 · activo=1 · preferente=1
+cliente,AUT-C006,CLI-6EAB764BE0B6CB00,Propietario 06 · activo=1 · preferente=0
+cliente,AUT-C007,CLI-6633CB734F9B3ABA,Propietario 07 · activo=0 · preferente=0
+cliente,AUT-C008,CLI-F71218D2FA97098E,Propietario 08 · activo=1 · preferente=0
+cliente,AUT-C009,CLI-73D7692C2E521A06,Propietario 09 · activo=1 · preferente=0
+cliente,AUT-C010,CLI-08500FFAF4A63304,Propietario 10 · activo=1 · preferente=1
+cliente,AUT-C011,CLI-64BDA1A8CDECC092,Propietario 11 · activo=1 · preferente=0
+cliente,AUT-C012,CLI-154D1A9B73768446,Propietario 12 · activo=1 · preferente=0
+cliente,AUT-C013,CLI-CBAE2919EE1CA57C,Propietario 13 · activo=1 · preferente=0
+cliente,AUT-C014,CLI-2DE077C35CAC0B54,Propietario 14 · activo=0 · preferente=0
+cliente,AUT-C015,CLI-0663EBF502D4329E,Propietario 15 · activo=1 · preferente=1
+cliente,AUT-C016,CLI-7D7EA8B27EB5DDC3,Propietario 16 · activo=1 · preferente=0
+cliente,AUT-C017,CLI-C44D3D63A46C40D1,Propietario 17 · activo=1 · preferente=0
+cliente,AUT-C018,CLI-E2C181425BD1DF39,Propietario 18 · activo=1 · preferente=0
+cliente,AUT-C019,CLI-031649474817407F,Propietario 19 · activo=1 · preferente=0
+cliente,AUT-C020,CLI-A89B2AD0BA876115,Propietario 20 · activo=1 · preferente=1
+cliente,AUT-C021,CLI-00FE576C2A065B03,Propietario 21 · activo=0 · preferente=0
+cliente,AUT-C022,CLI-213FF64C0C3036DD,Propietario 22 · activo=1 · preferente=0
+cliente,AUT-C023,CLI-55AE9D4D352BE814,Propietario 23 · activo=1 · preferente=0
+cliente,AUT-C024,CLI-41D6DAEF6729F4DD,Propietario 24 · activo=1 · preferente=0
+cliente,AUT-C025,CLI-81E0401D1F955885,Propietario 25 · activo=1 · preferente=1
+cliente,AUT-C026,CLI-27DE3BDD2EE2EE85,Propietario 26 · activo=1 · preferente=0
+cliente,AUT-C027,CLI-76EBF56AA35B5759,Propietario 27 · activo=1 · preferente=0
+cliente,AUT-C028,CLI-3649AF735D562598,Propietario 28 · activo=0 · preferente=0
+cliente,AUT-C029,CLI-EDBC2CC063B98C6E,Propietario 29 · activo=1 · preferente=0
+cliente,AUT-C030,CLI-32E168A86312C70C,Propietario 30 · activo=1 · preferente=1
+cliente,AUT-C031,CLI-84B715E735529469,Propietario 31 · activo=1 · preferente=0
+cliente,AUT-C032,CLI-8EF5208437D2F233,Propietario 32 · activo=1 · preferente=0
+cliente,AUT-C033,CLI-65FE08BDE71D5295,Propietario 33 · activo=1 · preferente=0
+cliente,AUT-C034,CLI-13AC319567789223,Propietario 34 · activo=1 · preferente=0
+cliente,AUT-C035,CLI-04ED53C376466A1A,Propietario 35 · activo=0 · preferente=1
+cliente,AUT-C036,CLI-1229C83FD41290B3,Propietario 36 · activo=1 · preferente=0
+cliente,AUT-C037,CLI-CBF5CB3EC3221FC5,Propietario 37 · activo=1 · preferente=0
+cliente,AUT-C038,CLI-EED76A21D7F2B805,Propietario 38 · activo=1 · preferente=0
+cliente,AUT-C039,CLI-5A8D6AA498B8C87E,Propietario 39 · activo=1 · preferente=0
+cliente,AUT-C040,CLI-1A373B8926E7C303,Propietario 40 · activo=1 · preferente=1
+recurso,AUT-P001,REC-FCF4769BBBC22E33,Diagnóstico 01 · 359.00 MXN · capacidad 13
+recurso,AUT-P002,REC-EE2F34027A13F5C8,Frenos 02 · 430.00 MXN · capacidad 16
+recurso,AUT-P003,REC-FB524250E5C201F6,Afinación 03 · 501.00 MXN · capacidad 19
+recurso,AUT-P004,REC-76094B979E2F4ACC,Cambio aceite 04 · 572.00 MXN · capacidad 22
+recurso,AUT-P005,REC-BA1CEF020E9C79CC,Diagnóstico 05 · 643.00 MXN · capacidad 25
+recurso,AUT-P006,REC-01E95FB026073A10,Frenos 06 · 714.00 MXN · capacidad 28
+recurso,AUT-P007,REC-8BFCA076ECED2C28,Afinación 07 · 785.00 MXN · capacidad 31
+recurso,AUT-P008,REC-B7781A6E409F6916,Cambio aceite 08 · 856.00 MXN · capacidad 34
+recurso,AUT-P009,REC-E1137EDBEF6C8B0E,Diagnóstico 09 · 927.00 MXN · capacidad 37
+recurso,AUT-P010,REC-4020CC64C7F974E6,Frenos 10 · 998.00 MXN · capacidad 40
+recurso,AUT-P011,REC-162C1A60385D5672,Afinación 11 · 1069.00 MXN · capacidad 43
+recurso,AUT-P012,REC-5CD8F86D40939E01,Cambio aceite 12 · 1140.00 MXN · capacidad 46
+recurso,AUT-P013,REC-976580F127B3DD10,Diagnóstico 13 · 1211.00 MXN · capacidad 49
+recurso,AUT-P014,REC-6C3B94989C0D856E,Frenos 14 · 1282.00 MXN · capacidad 52
+recurso,AUT-P015,REC-39D024B41A690A3E,Afinación 15 · 1353.00 MXN · capacidad 10
+recurso,AUT-P016,REC-A3C91EBD637441F9,Cambio aceite 16 · 1424.00 MXN · capacidad 13
+recurso,AUT-P017,REC-0FF6628DB9A37F08,Diagnóstico 17 · 1495.00 MXN · capacidad 16
+recurso,AUT-P018,REC-54E14D7BE495DEB1,Frenos 18 · 1566.00 MXN · capacidad 19
+recurso,AUT-P019,REC-73A10905393092E6,Afinación 19 · 1637.00 MXN · capacidad 22
+recurso,AUT-P020,REC-E6F079AB374D5F85,Cambio aceite 20 · 1708.00 MXN · capacidad 25
+orden_evaluacion,AUT-O001,ORD-931C8FFD8731B08A,PIA_AUT_001 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O002,ORD-052903F63A211A8D,PIA_AUT_002 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O003,ORD-F77D7E25E11E8B73,PIA_AUT_003 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O004,ORD-2F7BF95C55487EA1,PIA_AUT_004 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O005,ORD-198C3291FFD88F48,PIA_AUT_005 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O006,ORD-2B8100B8247770A0,PIA_AUT_006 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O007,ORD-84BB8AE45EC2CD86,PIA_AUT_007 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O008,ORD-207E9D90A813EA2A,PIA_AUT_008 · cotizada · 3 líneas
+orden_evaluacion,AUT-O009,ORD-DD8E7BE6BD2BF985,PIA_AUT_009 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O010,ORD-2D59BE5CB04DD779,PIA_AUT_010 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O011,ORD-7DB3A2C7EF658B79,PIA_AUT_011 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O012,ORD-74D704A148A05DF3,PIA_AUT_012 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O013,ORD-ED5458925DEB79DA,PIA_AUT_013 · sin detalle (queda en Recibido)
+orden_evaluacion,AUT-O014,ORD-8567137F20AB7F35,PIA_AUT_014 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O015,ORD-7C685634F7A1289A,PIA_AUT_015 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O016,ORD-5425BE37E1F64B6B,PIA_AUT_016 · cotizada · 2 líneas
+orden_evaluacion,AUT-O017,ORD-C6E9CF14ECB32FC1,PIA_AUT_017 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O018,ORD-3C8F14280A947A44,PIA_AUT_018 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O019,ORD-9875248FB74DE2F1,PIA_AUT_019 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O020,ORD-E2039D1F7526975D,PIA_AUT_020 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O021,ORD-4841FEF8129056B8,PIA_AUT_021 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O022,ORD-EDFF274FFD03618D,PIA_AUT_022 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O023,ORD-1FE2E8F7EAC78CD0,PIA_AUT_023 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O024,ORD-336BE38AA7311C95,PIA_AUT_024 · cotizada · 1 líneas
+orden_evaluacion,AUT-O025,ORD-83536DEB123F5C91,PIA_AUT_025 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O026,ORD-2211F7753861040B,PIA_AUT_026 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O027,ORD-016FF7A606BA432E,PIA_AUT_027 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O028,ORD-5F065B2F199C1EE5,PIA_AUT_028 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O029,ORD-9FDA521FE99E83E0,PIA_AUT_029 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O030,ORD-92419A7FC1374B00,PIA_AUT_030 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O031,ORD-5E267D5E82891B0A,PIA_AUT_031 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O032,ORD-76A2F9D289157046,PIA_AUT_032 · cotizada · 3 líneas
+orden_evaluacion,AUT-O033,ORD-CE9058EB53B0658A,PIA_AUT_033 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O034,ORD-AFF07A4B9732EE06,PIA_AUT_034 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O035,ORD-DD20227E95AA6EFD,PIA_AUT_035 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O036,ORD-DD7A1A4664875C68,PIA_AUT_036 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O037,ORD-C4257CD811865855,PIA_AUT_037 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O038,ORD-1D41982658A393C0,PIA_AUT_038 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O039,ORD-84D3C9E38F958AEF,PIA_AUT_039 · sin detalle (queda en Recibido)
+orden_evaluacion,AUT-O040,ORD-1099FAEFE4EF9C4A,PIA_AUT_040 · cotizada · 2 líneas
+orden_evaluacion,AUT-O041,ORD-A19C54E4A8E1A7C6,PIA_AUT_041 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O042,ORD-ACF5BCDE94D4A189,PIA_AUT_042 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O043,ORD-5429B765C4D77A92,PIA_AUT_043 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O044,ORD-09CE393729832343,PIA_AUT_044 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O045,ORD-FA3DECC262849584,PIA_AUT_045 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O046,ORD-F70EECC8ADDC8139,PIA_AUT_046 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O047,ORD-3573C2DC081AB5A9,PIA_AUT_047 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O048,ORD-FAB8B54D9B6EA4E8,PIA_AUT_048 · cotizada · 1 líneas
+orden_evaluacion,AUT-O049,ORD-9A007919C433C340,PIA_AUT_049 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O050,ORD-AEA56ABE4147C604,PIA_AUT_050 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O051,ORD-A836031E7A43C56F,PIA_AUT_051 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O052,ORD-923108E19A744188,PIA_AUT_052 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O053,ORD-8E65F509A9B2341E,PIA_AUT_053 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O054,ORD-BC62014663B21DE7,PIA_AUT_054 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O055,ORD-CF88533363937859,PIA_AUT_055 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O056,ORD-B50F385D802DE69E,PIA_AUT_056 · cotizada · 3 líneas
+orden_evaluacion,AUT-O057,ORD-4BC77BC5DE1345E7,PIA_AUT_057 · cotizada y autorizada · 1 líneas
+orden_evaluacion,AUT-O058,ORD-B93B3CD6EAD2021F,PIA_AUT_058 · cotizada y autorizada · 2 líneas
+orden_evaluacion,AUT-O059,ORD-7F6F67F821D754E2,PIA_AUT_059 · cotizada y autorizada · 3 líneas
+orden_evaluacion,AUT-O060,ORD-FB988197BE09BB35,PIA_AUT_060 · cotizada y autorizada · 1 líneas
+orden_transicion,AUT-S001,ORD-08CA794E2B09F136,"AUT-O001 · en Recibido, lista para probar «completar»"
+orden_transicion,AUT-S002,ORD-ABE7ABD64A9CE734,"AUT-O002 · en Recibido, lista para probar «cancelar»"
+orden_transicion,AUT-S003,ORD-84EE24AFE07BF351,"AUT-O003 · en Recibido, lista para probar «repetir_aprobacion»"
+orden_transicion,AUT-S004,ORD-DF4D960F97C95B35,"AUT-O004 · en Recibido, lista para probar «saltar_estado»"
+orden_transicion,AUT-S005,ORD-EFA39FF279A9BC52,"AUT-O005 · en Recibido, lista para probar «aprobar»"
+orden_transicion,AUT-S006,ORD-7478093EF2F2074F,"AUT-O006 · en Recibido, lista para probar «completar»"
+orden_transicion,AUT-S007,ORD-333632D7EEBF1C9F,"AUT-O007 · en Recibido, lista para probar «cancelar»"
+orden_transicion,AUT-S008,ORD-0E2FB995C5A9A427,"AUT-O008 · en Recibido, lista para probar «repetir_aprobacion»"
+orden_transicion,AUT-S009,ORD-47022B3E3967DBD5,"AUT-O009 · en Recibido, lista para probar «saltar_estado»"
+orden_transicion,AUT-S010,ORD-28C3AB7478E21D0B,"AUT-O010 · en Recibido, lista para probar «aprobar»"
+orden_transicion,AUT-S011,ORD-BD71C2292C1F42F9,"AUT-O011 · en Recibido, lista para probar «completar»"
+orden_transicion,AUT-S012,ORD-5CB313A0332A65E8,"AUT-O012 · en Recibido, lista para probar «cancelar»"
+orden_transicion,AUT-S013,ORD-36A7C2501C5022A9,"AUT-O013 · en Recibido, lista para probar «repetir_aprobacion»"
+orden_transicion,AUT-S014,ORD-54CA5BCE70D218C2,"AUT-O014 · en Recibido, lista para probar «saltar_estado»"
+orden_transicion,AUT-S015,ORD-53703154AD4F5889,"AUT-O015 · en Recibido, lista para probar «aprobar»"
+orden_transicion,AUT-S016,ORD-4522B912A43CAB65,"AUT-O016 · en Recibido, lista para probar «completar»"
+orden_transicion,AUT-S017,ORD-E343D5AFF3BAA338,"AUT-O017 · en Recibido, lista para probar «cancelar»"
+orden_transicion,AUT-S018,ORD-9947EE587F990530,"AUT-O018 · en Recibido, lista para probar «repetir_aprobacion»"
+orden_transicion,AUT-S019,ORD-5D7D024AC711F0BD,"AUT-O019 · en Recibido, lista para probar «saltar_estado»"
+orden_transicion,AUT-S020,ORD-12F2FF8B4EA5C1CF,"AUT-O020 · en Recibido, lista para probar «aprobar»"
+tecnico,—,TEC-93E0A7587F9DABE7,Técnico PIA (usar en diagnóstico y asignación)

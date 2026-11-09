@@ -1,0 +1,100 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Pruebas + cobertura (SQLite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Pruebas unitarias e integración (falla si cobertura < 80 %)
+        run: pytest --cov-report=xml --cov-report=term-missing
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+  test-mysql:
+    name: Integración contra MySQL
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: autofixpro_test
+          MYSQL_USER: autofix_ci
+          MYSQL_PASSWORD: ci_password_no_secreto
+          MYSQL_ROOT_PASSWORD: ci_root_no_secreto
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci_root_no_secreto"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      TEST_DATABASE_URL: mysql+pymysql://autofix_ci:ci_password_no_secreto@127.0.0.1:3306/autofixpro_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: pip install -r requirements-dev.txt
+      - run: pytest --no-cov
+
+  docker:
+    name: Imagen Docker
+    needs: [test, test-mysql]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar docker-compose
+        run: |
+          cp .env.example .env
+          docker compose config -q
+      - name: Construir imágenes (app y pruebas)
+        run: |
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+          docker build --target runtime -t autofixpro:ci .
+          docker build --target test -t autofixpro-tests:ci .
+      - name: Publicar imagen en GHCR (solo main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag autofixpro:ci "$IMAGE:${{ github.sha }}"
+          docker tag autofixpro:ci "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+
+  deploy:
+    name: Despliegue (Render/Railway por deploy hook)
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disparar despliegue si hay hook configurado
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          if [ -n "$DEPLOY_HOOK_URL" ]; then
+            curl -fsS -X POST "$DEPLOY_HOOK_URL"
+            echo "Despliegue solicitado."
+          else
+            echo "DEPLOY_HOOK_URL no configurado; se omite el despliegue."
+          fi
